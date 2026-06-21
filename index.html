@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -65,6 +65,74 @@
             to { transform: translate(120px, 90px) scale(1.3); }
         }
 
+        .entry-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #0a0a0c;
+            cursor: pointer;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            user-select: none;
+        }
+        .entry-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .entry-screen .entry-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+            filter: grayscale(0.7) contrast(1.1);
+            transition: transform 0.5s ease, filter 0.5s ease;
+        }
+        .entry-screen:hover .entry-avatar {
+            transform: scale(1.05);
+            filter: grayscale(0.3) contrast(1.2);
+        }
+
+        .entry-screen .entry-title {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(to bottom, #f5f5f7 25%, #b8b8c0 80%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .entry-screen .entry-sub {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #6a6a7a;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        .entry-screen .entry-divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #6a6a7a, transparent);
+            margin: 1.2rem auto 0;
+        }
+
         .glass-card {
             position: relative;
             z-index: 10;
@@ -79,6 +147,13 @@
             border: 1px solid rgba(255, 255, 255, 0.06);
             box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.02);
             transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .glass-card.visible {
+            opacity: 1;
+            transform: scale(1) translateY(0);
         }
 
         .glass-card:hover {
@@ -184,6 +259,8 @@
             .avatar-wrapper { width: 130px; height: 130px; }
             .social-link { width: 48px; height: 48px; font-size: 1.4rem; }
             .social-row { gap: 0.9rem; }
+            .entry-screen .entry-title { font-size: 2.8rem; }
+            .entry-screen .entry-avatar { width: 90px; height: 90px; }
         }
     </style>
 </head>
@@ -191,7 +268,18 @@
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
 
-    <div class="glass-card">
+    <div class="entry-screen" id="entryScreen">
+        <img 
+            class="entry-avatar" 
+            src="https://i.pinimg.com/1200x/de/7a/1d/de7a1d4ee45fbd6a099c17e8b072420e.jpg" 
+            alt="kiro"
+        >
+        <div class="entry-title">kiro</div>
+        <div class="entry-divider"></div>
+        <div class="entry-sub">✦ click to enter ✦</div>
+    </div>
+
+    <div class="glass-card" id="mainCard">
         <div class="avatar-wrapper">
             <img class="avatar" src="https://i.pinimg.com/1200x/de/7a/1d/de7a1d4ee45fbd6a099c17e8b072420e.jpg" alt="kiro">
         </div>
@@ -218,5 +306,30 @@
             </a>
         </div>
     </div>
+
+    <audio id="bg-music" loop preload="auto">
+        <source src="src/music.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const entryScreen = document.getElementById('entryScreen');
+        const mainCard = document.getElementById('mainCard');
+        const audio = document.getElementById('bg-music');
+
+        entryScreen.addEventListener('click', function() {
+            this.classList.add('hidden');
+            mainCard.classList.add('visible');
+            audio.play().catch(function(error) {
+                console.log('Autoplay blocked, music will start on click');
+            });
+        });
+
+        audio.addEventListener('ended', function() {
+            this.currentTime = 0;
+            this.play().catch(() => {});
+        });
+
+        audio.load();
+    </script>
 </body>
 </html>
